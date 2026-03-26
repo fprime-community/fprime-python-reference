@@ -11,6 +11,7 @@ project(FprimePythonReference C CXX)
 # F' Core Setup
 # This includes all of the F prime core components, and imports the make-system.
 ###
+set(FPRIME_ENABLE_JSON_MODEL_GENERATION ON)
 include("${CMAKE_CURRENT_LIST_DIR}/lib/fprime/cmake/FPrime.cmake")
 
 # Register fprime_python build target

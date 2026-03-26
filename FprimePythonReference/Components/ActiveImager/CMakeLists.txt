@@ -16,9 +16,9 @@
 
 register_fprime_library(
     AUTOCODER_INPUTS
-        "${CMAKE_CURRENT_LIST_DIR}/ActivePythonExample.fpp"
+        "${CMAKE_CURRENT_LIST_DIR}/ActiveImager.fpp"
     SOURCES
-        "${CMAKE_CURRENT_LIST_DIR}/ActivePythonExample.py"
+        "${CMAKE_CURRENT_LIST_DIR}/ActiveImager.py"
 )
 
 ### Unit Tests ###

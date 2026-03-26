@@ -32,7 +32,7 @@ module ReferenceDeployment {
     instance timer
     instance comDriver
     instance cmdSeq
-    instance activePython
+    instance activeImager
 
   # ----------------------------------------------------------------------
   # Pattern graph specifiers
@@ -128,7 +128,7 @@ module ReferenceDeployment {
     }
 
     connections ReferenceDeployment {
-
+        activeImager.downlinkImage -> FileHandling.fileDownlink.SendFile
     }
 
   }

@@ -13,6 +13,8 @@ register_fprime_deployment(
     SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/Main.cpp" # Needed to appease compiler
         "${CMAKE_CURRENT_LIST_DIR}/fsw_main.py" # Python entrypoint
+    CHOOSES_IMPLEMENTATIONS
+        FprimePython_PythonConsole
     DEPENDS
         ${FPRIME_CURRENT_MODULE}_Top
 )
