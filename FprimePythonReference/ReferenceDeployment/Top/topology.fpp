@@ -16,7 +16,7 @@ module ReferenceDeployment {
   # Subtopology imports
   # ----------------------------------------------------------------------
     import CdhCore.Subtopology
-    import ComCcsds.Subtopology
+    import ComCcsds.FramingSubtopology
     import DataProducts.Subtopology
     import FileHandling.Subtopology
     
@@ -30,9 +30,9 @@ module ReferenceDeployment {
     instance rateGroupDriver
     instance systemResources
     instance timer
-    instance comDriver
     instance cmdSeq
     instance activeImager
+    instance pythonCom
 
   # ----------------------------------------------------------------------
   # Pattern graph specifiers
@@ -56,6 +56,18 @@ module ReferenceDeployment {
   # Direct graph specifiers
   # ----------------------------------------------------------------------
 
+       
+    connections PythonCommunications {
+        # Framer <-> PythonTcpCom (Downlink)
+        ComCcsds.framer.dataOut -> pythonCom.dataIn
+        pythonCom.dataReturnOut   -> ComCcsds.framer.dataReturnIn
+        pythonCom.comStatusOut    -> ComCcsds.framer.comStatusIn
+
+        # PythonTcpCom <-> FrameAccumulator (Uplink)
+        pythonCom.dataOut -> ComCcsds.frameAccumulator.dataIn
+        ComCcsds.frameAccumulator.dataReturnOut -> pythonCom.dataReturnIn
+    }
+
     connections ComCcsds_CdhCore {
       # Core events and telemetry to communication queue
       CdhCore.events.PktSend -> ComCcsds.comQueue.comPacketQueueIn[ComCcsds.Ports_ComPacketQueue.EVENTS]
@@ -75,20 +87,6 @@ module ReferenceDeployment {
       # Router to File Uplink
       ComCcsds.fprimeRouter.fileOut -> FileHandling.fileUplink.bufferSendIn
       FileHandling.fileUplink.bufferSendOut -> ComCcsds.fprimeRouter.fileBufferReturnIn
-    }
-
-    connections Communications {
-      # ComDriver buffer allocations
-      comDriver.allocate      -> ComCcsds.commsBufferManager.bufferGetCallee
-      comDriver.deallocate    -> ComCcsds.commsBufferManager.bufferSendIn
-      
-      # ComDriver <-> ComStub (Uplink)
-      comDriver.$recv                     -> ComCcsds.comStub.drvReceiveIn
-      ComCcsds.comStub.drvReceiveReturnOut -> comDriver.recvReturnIn
-      
-      # ComStub <-> ComDriver (Downlink)
-      ComCcsds.comStub.drvSendOut      -> comDriver.$send
-      comDriver.ready         -> ComCcsds.comStub.drvConnected
     }
 
     connections FileHandling_DataProducts {

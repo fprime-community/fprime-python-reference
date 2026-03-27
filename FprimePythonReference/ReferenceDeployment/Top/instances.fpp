@@ -68,5 +68,7 @@ module ReferenceDeployment {
 
   instance timer: Svc.LinuxTimer base id 0x10013000
 
-  instance comDriver: Drv.TcpClient base id 0x10014000
+  instance pythonCom: FprimePythonReference.PythonTcpCom base id 0x10014000
+
+
 }
