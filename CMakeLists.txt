@@ -20,7 +20,7 @@ if (NOT DEFINED FPRIME_SUB_BUILD_TARGETS)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
     set(PYBIND11_FINDPYTHON ON)
     find_package(pybind11 CONFIG REQUIRED PATHS "$ENV{VIRTUAL_ENV}/lib/*/site-packages/")
-    link_libraries("pybind11::module" "pybind11::headers")
+    link_libraries("pybind11::module" "pybind11::headers" "pybind11::embed")
     register_fprime_target(target/fprime_python)
 endif()
 
