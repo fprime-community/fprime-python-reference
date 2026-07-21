@@ -7,6 +7,7 @@ Supplies required entrypoint: fsw_main() for use with fprime-python-runner.
 """
 import fprime_py
 import argparse
+import signal
 
 def parse_args():
     """ Parse command line arguments for F Prime execution """
@@ -26,6 +27,11 @@ def parse_args():
     return parser.parse_args()
 
 
+def handle_sigterm(signum, frame):
+    """ Shut down gracefully on SIGTERM, mirroring CTRL-C handling """
+    raise KeyboardInterrupt
+
+
 def fsw_main():
     """ Main entrypoint for F Prime system
     
@@ -34,6 +40,7 @@ def fsw_main():
     """
     # Set up topology state from command line arguments
     args = parse_args()
+    signal.signal(signal.SIGTERM, handle_sigterm)
     topology_state = fprime_py.TopologyState()
     topology_state.hostname = args.hostname
     topology_state.port = args.port
