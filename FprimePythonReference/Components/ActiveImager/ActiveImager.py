@@ -10,6 +10,8 @@ from ActiveImagerBaseAc import ActiveImagerBase
 import cv2
 from pathlib import Path
 
+CAMERA_INDEX = 0
+
 class ActiveImager(ActiveImagerBase):
     """ Python implementation for the ActiveImager component """
     def __init__(self):
@@ -19,15 +21,29 @@ class ActiveImager(ActiveImagerBase):
         the F Prime topology is not yet fully constructed, so only basic initialization should be done here.
         """
         super().__init__()
-        self.capture = cv2.VideoCapture(0)  # Open the object
-    
+        self.capture = None
+
+    def open_camera(self):
+        """ Lazily open and cache the camera capture; returns None when no camera is available """
+        if self.capture is not None and self.capture.isOpened():
+            return self.capture
+        self.capture = None
+        try:
+            capture = cv2.VideoCapture(CAMERA_INDEX)
+            if not capture.isOpened():
+                capture.release()
+                raise cv2.error(f"camera {CAMERA_INDEX} failed to open")
+            self.capture = capture
+        except cv2.error as exc:
+            print(f"[WARNING] Camera is not available: {exc}")
+            self.log_WARNING_HI_CameraUnavailable()
+        return self.capture
+
     def TAKE_IMAGE_cmdHandler(self, opCode, cmdSeq, string_argument):
         """ Handle the TAKE_IMAGE command """
         return_status = fprime_py.Fw.CmdResponse.T.OK
         # Check for camera availability
-        if not self.capture.isOpened():
-            print("[WARNING] Camera is not available.")
-            self.log_WARNING_HI_CameraUnavailable()
+        if self.open_camera() is None:
             return_status = fprime_py.Fw.CmdResponse.T.EXECUTION_ERROR
         else:
             # Start imaging process
