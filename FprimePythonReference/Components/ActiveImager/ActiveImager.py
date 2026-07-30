@@ -4,7 +4,6 @@ This is the Python implementation for the ActiveImager component. This class ext
 class ActiveImagerBase that provides the necessary plumbing to connect to the C++ stub connected to the rest of
 the F Prime topology.
 """
-import sys
 import fprime_py
 from ActiveImagerBaseAc import ActiveImagerBase
 
@@ -28,24 +27,21 @@ class ActiveImager(ActiveImagerBase):
         """ Open the camera capture object if possible
 
         Returns the opened cv2.VideoCapture object, or None when no camera is available. The capture object is
-        opened lazily and cached so repeated commands reuse the same camera handle. Systems without a camera
-        (e.g. CI machines) must not construct a cv2.VideoCapture, as OpenCV backends may abort the process.
+        opened lazily and cached so repeated commands reuse the same camera handle, keeping camera-less systems
+        (e.g. CI machines) from failing at component construction time.
         """
         if self.capture is not None and self.capture.isOpened():
             return self.capture
         self.capture = None
-        # On Linux, only attempt to open the camera when the video device node exists
-        if sys.platform.startswith("linux") and not Path(f"/dev/video{CAMERA_INDEX}").exists():
-            return None
         try:
             capture = cv2.VideoCapture(CAMERA_INDEX)
+            if not capture.isOpened():
+                capture.release()
+                raise cv2.error(f"camera {CAMERA_INDEX} failed to open")
+            self.capture = capture
         except cv2.error as exc:
-            print(f"[WARNING] Failed to open camera: {exc}")
-            return None
-        if not capture.isOpened():
-            capture.release()
-            return None
-        self.capture = capture
+            print(f"[WARNING] Camera is not available: {exc}")
+            self.log_WARNING_HI_CameraUnavailable()
         return self.capture
 
     def TAKE_IMAGE_cmdHandler(self, opCode, cmdSeq, string_argument):
@@ -53,8 +49,6 @@ class ActiveImager(ActiveImagerBase):
         return_status = fprime_py.Fw.CmdResponse.T.OK
         # Check for camera availability
         if self.open_camera() is None:
-            print("[WARNING] Camera is not available.")
-            self.log_WARNING_HI_CameraUnavailable()
             return_status = fprime_py.Fw.CmdResponse.T.EXECUTION_ERROR
         else:
             # Start imaging process
