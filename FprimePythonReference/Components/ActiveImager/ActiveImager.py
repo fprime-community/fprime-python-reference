@@ -24,12 +24,7 @@ class ActiveImager(ActiveImagerBase):
         self.capture = None
 
     def open_camera(self):
-        """ Open the camera capture object if possible
-
-        Returns the opened cv2.VideoCapture object, or None when no camera is available. The capture object is
-        opened lazily and cached so repeated commands reuse the same camera handle, keeping camera-less systems
-        (e.g. CI machines) from failing at component construction time.
-        """
+        """ Lazily open and cache the camera capture; returns None when no camera is available """
         if self.capture is not None and self.capture.isOpened():
             return self.capture
         self.capture = None
