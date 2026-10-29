@@ -10,6 +10,7 @@ module ReferenceDeployment {
     rateGroup3
   }
 
+  @ fprime-python
   deployment topology ReferenceDeployment {
 
   # ----------------------------------------------------------------------
@@ -106,10 +107,13 @@ module ReferenceDeployment {
       rateGroup1.RateGroupMemberOut[2] -> systemResources.run
       rateGroup1.RateGroupMemberOut[3] -> ComCcsds.comQueue.run
       rateGroup1.RateGroupMemberOut[4] -> pythonGc.run
+      rateGroup1.RateGroupMemberOut[5] -> ComCcsds.aggregator.timeout
+      rateGroup1.RateGroupMemberOut[6] -> CdhCore.cmdDisp.run
 
       # Rate group 2
       rateGroupDriver.CycleOut[Ports_RateGroups.rateGroup2] -> rateGroup2.CycleIn
       rateGroup2.RateGroupMemberOut[0] -> cmdSeq.schedIn
+      rateGroup2.RateGroupMemberOut[1] -> FileHandling.fileManager.schedIn
 
       # Rate group 3
       rateGroupDriver.CycleOut[Ports_RateGroups.rateGroup3] -> rateGroup3.CycleIn
@@ -118,7 +122,8 @@ module ReferenceDeployment {
       rateGroup3.RateGroupMemberOut[2] -> DataProducts.dpBufferManager.schedIn
       rateGroup3.RateGroupMemberOut[3] -> DataProducts.dpWriter.schedIn
       rateGroup3.RateGroupMemberOut[4] -> DataProducts.dpMgr.schedIn
-      
+      rateGroup3.RateGroupMemberOut[5] -> CdhCore.events.run
+
     }
 
     connections CdhCore_cmdSeq {
